@@ -13,7 +13,6 @@ from training.trainer import Trainer
 
 
 
-
 def load_config(config_path="configs/config.yaml"):
     with open(config_path, "r") as file:
         return yaml.safe_load(file)
@@ -42,6 +41,6 @@ def main():
     for i in range(n_epochs):
         if config['training']['train_dynamic']:
             dynamic_trainer.train(n_train_steps=config['training']['n_steps_per_epoch'], current_epoch=i)
-            
+
 if __name__ == "__main__":
     main()

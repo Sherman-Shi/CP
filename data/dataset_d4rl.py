@@ -23,6 +23,52 @@ def get_dataset(env):
     dataset = env.get_dataset()
     return dataset
 
+
+def RSA_sequence_dataset(env):
+    """
+    Returns an iterator through trajectories, including a computed 'reward_to_go' for each timestep.
+    Args:
+        env: An OfflineEnv object.
+    Returns:
+        An iterator through dictionaries with keys:
+            observations
+            actions
+            rewards
+            terminals
+            reward_to_go
+    """
+    dataset = get_dataset(env)
+    N = dataset['rewards'].shape[0]
+    data_ = collections.defaultdict(list)
+    use_timeouts = 'timeouts' in dataset
+
+    episode_step = 0
+    for i in range(N):
+        done_bool = bool(dataset['terminals'][i])
+        final_timestep = dataset['timeouts'][i] if use_timeouts else (episode_step == env._max_episode_steps - 1)
+
+        for k in dataset:
+            if 'metadata' in k: continue
+            data_[k].append(dataset[k][i])
+
+        if done_bool or final_timestep:
+            # Calculate reward_to_go for each timestep in the episode
+            rewards = np.array(data_['rewards'])
+            reward_to_go = np.flip(np.cumsum(np.flip(rewards)))
+
+            episode_data = {}
+            for k in data_:
+                episode_data[k] = np.array(data_[k])
+            episode_data['reward_to_go'] = reward_to_go
+
+            yield episode_data
+
+            # Reset for the next episode
+            data_ = collections.defaultdict(list)
+            episode_step = 0
+        else:
+            episode_step += 1
+
 def sequence_dataset(env):
     """
     Returns an iterator through trajectories.

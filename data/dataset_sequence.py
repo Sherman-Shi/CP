@@ -8,7 +8,7 @@ import d4rl
 import gym
 import torch
 import numpy as np
-from .dataset_d4rl import load_environment, sequence_dataset, sequence_target_dataset, make_target_indices
+from .dataset_d4rl import load_environment, sequence_dataset, sequence_target_dataset, make_target_indices, RSA_sequence_dataset
 from .buffer import ReplayBuffer
 from .normalizer import DatasetNormalizer
 from collections import namedtuple
@@ -28,7 +28,7 @@ class RSADataset(torch.utils.data.Dataset):
         self.use_padding = config["dataset"]["use_padding"]
         self.known_obs_len = config["target"]["known_obs_len"]
         self.target_len = config["target"]["target_len"]
-        itr = sequence_dataset(self.env)
+        itr = RSA_sequence_dataset(self.env)
 
         fields = ReplayBuffer(self.max_n_episodes, self.max_episode_len, self.termination_penalty)
         for i, episode in enumerate(itr):
@@ -46,7 +46,7 @@ class RSADataset(torch.utils.data.Dataset):
 
         print(fields)
 
-    def normalize(self, keys=['observations', 'actions']):
+    def normalize(self, keys=['observations', 'actions', "reward_to_go"]):
         '''
             normalize fields that will be predicted by the diffusion model
         '''
