@@ -76,8 +76,8 @@ class RSADataset(torch.utils.data.Dataset):
             condition on current trajectories for planning
         '''
         known_traj = trajectories[:self.known_obs_len]
-        target = trajectories[-self.target_len:]
-        return {"known_obs": known_traj, "target": target}
+
+        return {"known_obs": known_traj}
     
     def __len__(self):
         return len(self.indices)
@@ -87,7 +87,8 @@ class RSADataset(torch.utils.data.Dataset):
 
         observations = self.fields.normed_observations[path_ind, start:end]
         actions = self.fields.normed_actions[path_ind, start:end]
-        trajectories = np.concatenate([actions, observations], axis=-1)
+        reward_to_go = self.fields.normerd_reward_to_go[path_ind, start:end]
+        trajectories = np.concatenate([actions, observations, reward_to_go], axis=-1)
         conditions = self.get_conditions(trajectories)
 
         batch = Batch(trajectories, conditions)
