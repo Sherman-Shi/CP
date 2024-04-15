@@ -21,6 +21,10 @@ training:
   load_target_checkpoint: false
   load_target_path: "/home/zhenpeng/桌面/brainstorm/OSG/weights/halfcheetah-expert-v2_checkpoint/target_state_499.pt"
 
+evaluating:
+  num_eval: 10 
+
+
 diffusion:
   n_diffusion_steps: 100 
   clip_denoised: true
