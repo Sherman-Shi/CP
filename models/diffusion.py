@@ -13,7 +13,7 @@ class GaussianDiffusionModel(BaseModel):
         self.horizon = dataset.horizon
         self.observation_dim = dataset.observation_dim
         self.action_dim = dataset.action_dim
-        self.transition_dim = self.observation_dim + self.action_dim
+        self.transition_dim = self.observation_dim + self.action_dim + 1
         self.n_timesteps = int(config['diffusion']['n_diffusion_steps']) # diffusion steps
         self.loss_discount = config['diffusion']['loss_discount']
         self.loss_type = config['diffusion']['loss_type']
@@ -22,7 +22,7 @@ class GaussianDiffusionModel(BaseModel):
         # target 
         self.known_obs_len = config['target']['known_obs_len']
         self.target_len = config['target']['target_len']
-        self.predict_len = self.horizon - self.known_obs_len - self.target_len
+        self.predict_len = self.horizon - self.known_obs_len
 
         # neural network 
         self.model = TemporalUnet(self.horizon, self.transition_dim).to(self.device)
@@ -197,19 +197,19 @@ class GaussianDiffusionModel(BaseModel):
         noise = torch.randn_like(x_start)
 
         x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
-        x_noisy = apply_conditioning_on_trajectory(x_noisy, cond, self.known_obs_len, self.target_len)
+        x_noisy = apply_conditioning_on_trajectory(x_noisy, cond, self.known_obs_len)
 
         x_recon = self.model(x_noisy, cond, t, returns)
 
         if not self.predict_epsilon:
-            x_noisy = apply_conditioning_on_trajectory(x_noisy, cond, self.known_obs_len, self.target_len)
+            x_noisy = apply_conditioning_on_trajectory(x_noisy, cond, self.known_obs_len)
 
         assert noise.shape == x_recon.shape
 
         if self.predict_epsilon:
-            loss, info = self.loss_fn(x_recon[:,self.known_obs_len:-self.target_len,:], noise[:,self.known_obs_len:-self.target_len,:])
+            loss, info = self.loss_fn(x_recon[:,self.known_obs_len:,:], noise[:,self.known_obs_len:,:])
         else:
-            loss, info = self.loss_fn(x_recon[:,self.known_obs_len:-self.target_len,:], x_start[:,self.known_obs_len:-self.target_len,:])
+            loss, info = self.loss_fn(x_recon[:,self.known_obs_len:,:], x_start[:,self.known_obs_len:,:])
 
         return loss, info
 

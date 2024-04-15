@@ -87,7 +87,7 @@ class RSADataset(torch.utils.data.Dataset):
 
         observations = self.fields.normed_observations[path_ind, start:end]
         actions = self.fields.normed_actions[path_ind, start:end]
-        reward_to_go = self.fields.normerd_reward_to_go[path_ind, start:end]
+        reward_to_go = self.fields.normed_reward_to_go[path_ind, start:end]
         trajectories = np.concatenate([actions, observations, reward_to_go], axis=-1)
         conditions = self.get_conditions(trajectories)
 

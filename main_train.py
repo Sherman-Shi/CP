@@ -3,8 +3,6 @@ import wandb
 import torch
 import gym
 
-import sys
-sys.path.append("/home/zhenpeng/桌面/brainstorm/OSG")
 from utils.load_model import load_model_from_config
 from evaluating.eval import evaluate_model
 from data.dataset_sequence import RSADataset

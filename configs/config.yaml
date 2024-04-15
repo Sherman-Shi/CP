@@ -1,19 +1,19 @@
 
 wandb:
-  project: "osg-testing"
+  project: "cp-testing"
   log_to_wandb: true
 
 training:
   train_dynamic: true
   train_target: true
-  n_total_train_steps: 1000000
+  n_total_train_steps: 500000
   n_steps_per_epoch: 1000 
   eval_freq: 10 
   learning_rate: 0.0002
   batch_size: 64
   save_checkpoints: false 
   log_freq: 10
-  save_freq: 100 #save for every * epoch 
+  save_freq: 50 #save for every * epoch 
   gradient_accumulate_every: 2
   device: "cuda:1"
   load_checkpoint: false 
@@ -33,12 +33,12 @@ model:
   model_specific_param: 1.0  
 
 dataset:
-  env_name: "halfcheetah-expert-v2"
+  env_name: "hopper-medium-expert-v2"
   normalizer_name: "CDFNormalizer" # type of normalizer used in data process
-  horizon: 128  # planning horizon 
+  horizon: 64  # planning horizon 
   max_episode_len: 1000 # max len for each trajectory 
   max_n_episodes: 10000 # max size for trajectories in the replay buffer 
-  termination_penalty: -100.0 # penalty for early termination in the trajectory TODO: do we need this ?  
+  termination_penalty: 0.0 # penalty for early termination in the trajectory TODO: do we need this ?  
   use_padding: False
 
 target:
